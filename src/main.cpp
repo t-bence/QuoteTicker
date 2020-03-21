@@ -16,13 +16,12 @@ int numberOfVerticalDisplays = 1;
 
 Max72xxPanel matrix = Max72xxPanel(pinCS, numberOfHorizontalDisplays, numberOfVerticalDisplays);
 
-int wait = 40; // In milliseconds
+int wait = 45; // In milliseconds
 uint16_t spacer = 1;
 uint16_t width = 5 + spacer; // The font width is 5 pixels
 
 // configurations over
 
-/* Put IP Address details */
 IPAddress local_ip(192,168,0,77);
 IPAddress gateway(192,168,0,1);
 IPAddress subnet(255,255,255,0);
@@ -54,6 +53,7 @@ void setup() {
   server.onNotFound(handle404);
   
   server.begin();
+
   Serial.println("HTTP server started");
 
   // set up LED display
@@ -95,7 +95,7 @@ void loop() {
 void showPage() {
   // display current settings on webpage
   Serial.println("Showing page");
-  server.send(200, "text/html", html_start + messages + html_end);
+  //server.send(200, "text/html", html_start + messages + html_end);
 
 }
 
