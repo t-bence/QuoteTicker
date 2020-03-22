@@ -31,4 +31,6 @@ CLK            -> D5  (Same Pin for WEMOS)
 
 * Removing delay and adding a timer cold help maybe? 
 
-* The problem is not related to the WiFi part, it flickers even without that.
+* The problem is not related to the WiFi part, it flickers even without that. Try other SPI pins maybe? D5...D8?
+
+* Use [this](https://blog.adafruit.com/2019/04/08/the-adafruit-gfx-library-now-supports-unicode-adafruit-adafruit-josecastillo/) for Unicode support?
