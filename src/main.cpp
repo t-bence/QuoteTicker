@@ -1,25 +1,34 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+#include <MD_MAX72xx.h>
 #include <SPI.h>
-#include <Adafruit_GFX.h>
-#include <Max72xxPanel.h>
-
+#include <MD_Parola.h>
 // configurations begin
 
 const char* ssid = "IdezetGep";
 const char* password = "12345678";
 
-int pinCS = D4; // Attach CS to this pin, DIN to MOSI and CLK to SCK (cf http://arduino.cc/en/Reference/SPI )
-int numberOfHorizontalDisplays = 4;
-int numberOfVerticalDisplays = 1;
+// graphics conf
 
-Max72xxPanel matrix = Max72xxPanel(pinCS, numberOfHorizontalDisplays, numberOfVerticalDisplays);
+#define MAX_DEVICES 4  // Number of modules connected
+#define CLK_PIN   D5   // SPI SCK pin on UNO
+#define DATA_PIN  D7   // SPI MOSI pin on UNO
+#define CS_PIN    D4   // connected to pin 10 on UNO
 
-int wait = 55; //45; // In milliseconds
-uint16_t spacer = 1;
-uint16_t width = 5 + spacer; // The font width is 5 pixels
+MD_Parola P = MD_Parola(MD_MAX72XX::FC16_HW, CS_PIN, MAX_DEVICES);  // SPI config
 
+int scrollSpeed {41};    // used to set text scroll speed in Parola at start
+
+// sets scrolling direction if slider in middle at start
+textEffect_t scrollEffect = PA_SCROLL_LEFT;
+
+textPosition_t scrollAlign = PA_LEFT;  // how to aligh the text
+
+int scrollPause = 0; // ms of pause after finished displaying message
+
+#define	BUF_SIZE	600  // Maximum of 600 characters
+char curMessage[BUF_SIZE] = { "Hello vilag!" };  // used to hold current message
 // configurations over
 
 IPAddress local_ip(192,168,0,77);
@@ -57,41 +66,21 @@ void setup() {
   Serial.println("HTTP server started");
 
   // set up LED display
-  matrix.setIntensity(2);
+  P.begin(); 
   
-  matrix.setRotation(0, 1);
-  matrix.setRotation(1, 1);
-  matrix.setRotation(2, 1);
-  matrix.setRotation(3, 1);
+  // configure Parola
+  P.displayText(curMessage, scrollAlign, scrollSpeed, scrollPause, scrollEffect, scrollEffect);
 
 }
 
 void loop() {
-  // display message on the LEDs
-    for ( uint16_t i = 0 ;
-          i < width * messagesOneline.length() + matrix.width() - 1 - spacer;
-          i++
-        ) {
-      //server.handleClient();
 
-      uint16_t letter = i / width;
-      int x = (matrix.width() - 1) - i % width;
-      int y = (matrix.height() - 8) / 2; // center the text vertically
+  server.handleClient();
 
-      while ( x + width - spacer >= 0 && letter >= 0 ) {
-        if ( letter < messagesOneline.length() ) {
-          matrix.drawChar(x, y, messagesOneline[letter], HIGH, LOW, 1);
-        }
-
-        letter--;
-        x -= width;
-      }
-
-      matrix.write(); // Send bitmap to display
-      delay(wait);
-
-    }
-    matrix.fillScreen(LOW);
+  if (P.displayAnimate()) // If finished displaying message
+  {
+    P.displayReset();  // Reset and display it again
+  }
 }
 
 void showPage() {
@@ -106,8 +95,14 @@ void handlePost() {
   // get text
   Serial.println("POST request: ");
   messages = server.arg(0);
+  messages.replace("ő", "ö");
+  messages.replace("ű", "ü");
+  messages.replace("Ő", "Ö");
+  messages.replace("Ű", "Ü");
   messagesOneline = messages;
   messagesOneline.replace("\r\n", "   ");
+  
+  messagesOneline.toCharArray(curMessage, BUF_SIZE);
   Serial.println(messages);
   
   // save messages
