@@ -7,7 +7,7 @@
 
 // configurations begin
 
-const char* ssid = "QuoteTicker";
+const char* ssid = "IdezetGep";
 const char* password = "12345678";
 
 int pinCS = D4; // Attach CS to this pin, DIN to MOSI and CLK to SCK (cf http://arduino.cc/en/Reference/SPI )
@@ -16,7 +16,7 @@ int numberOfVerticalDisplays = 1;
 
 Max72xxPanel matrix = Max72xxPanel(pinCS, numberOfHorizontalDisplays, numberOfVerticalDisplays);
 
-int wait = 45; // In milliseconds
+int wait = 55; //45; // In milliseconds
 uint16_t spacer = 1;
 uint16_t width = 5 + spacer; // The font width is 5 pixels
 
@@ -68,10 +68,11 @@ void setup() {
 
 void loop() {
   // display message on the LEDs
-    for ( uint16_t i = 0 ; i < width * messagesOneline.length() + matrix.width() - 1 - spacer; i++ ) {
-      server.handleClient();
-      
-      matrix.fillScreen(LOW);
+    for ( uint16_t i = 0 ;
+          i < width * messagesOneline.length() + matrix.width() - 1 - spacer;
+          i++
+        ) {
+      //server.handleClient();
 
       uint16_t letter = i / width;
       int x = (matrix.width() - 1) - i % width;
@@ -90,6 +91,7 @@ void loop() {
       delay(wait);
 
     }
+    matrix.fillScreen(LOW);
 }
 
 void showPage() {

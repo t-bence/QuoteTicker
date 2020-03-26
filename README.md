@@ -27,7 +27,7 @@ CLK            -> D5  (Same Pin for WEMOS)
 ## Ideas, notes
 * I could store the strings in the SPIFFS: descriptions [here](https://techtutorialsx.com/2018/08/05/esp32-arduino-spiffs-reading-a-file/) and [here](https://techtutorialsx.com/2019/05/28/esp8266-spiffs-writing-a-file/).
 
-* Rotation introduces flicker. When using Adafruit's original `setRotation`, exposed by `Max72xxPanel::setRotation`, there is no flicker but the display won't work properly (one is upside down, the other is not, and there is no was to specify rotation on a per-display basis). So I have to look and combine the approaches from the two libraries.
+* Rotation introduces flicker. When using Adafruit's original `setRotation`, exposed by `Max72xxPanel::setRotation` is used, there is no flicker but the display won't work properly (one is upside down, the other is not, and there is no was to specify rotation on a per-display basis). So I have to look and combine the approaches from the two libraries.
 
 * Removing delay and adding a timer cold help maybe? 
 
