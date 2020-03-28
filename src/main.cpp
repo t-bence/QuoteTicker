@@ -4,6 +4,8 @@
 #include <MD_MAX72xx.h>
 #include <SPI.h>
 #include <MD_Parola.h>
+#include <EEPROM.h>
+
 // configurations begin
 
 const char* ssid = "IdezetGep";
@@ -28,7 +30,9 @@ textPosition_t scrollAlign = PA_LEFT;  // how to aligh the text
 int scrollPause = 0; // ms of pause after finished displaying message
 
 #define	BUF_SIZE	600  // Maximum of 600 characters
-char curMessage[BUF_SIZE] = { "Hello vilag!" };  // used to hold current message
+char curMessage[BUF_SIZE] = { "" };  // used to hold current message
+const uint16_t EEPROM_ADDR {0};
+
 // configurations over
 
 IPAddress local_ip(192,168,0,77);
@@ -37,7 +41,7 @@ IPAddress subnet(255,255,255,0);
 
 ESP8266WebServer server(80);
 
-String messages {"Hello vilag"};
+String messages {""};
 String messagesOneline {""};
 
 String html_start {"<html><head><style>h1 {font-size: 55px; } .u-full-width { width: 100%; box-sizing: border-box; } .button, button, input { display: block; height: 200px; padding: 0 30px; color: #FFF; text-align: center; font-size: 50px; font-weight: 600; line-height: 38px; letter-spacing: .1rem; text-transform: uppercase; text-decoration: none; white-space: nowrap; background-color: #33C3F0; border-radius: 4px; border: 1px solid #33C3F0; cursor: pointer; box-sizing: border-box; } textarea { font-size: 38px; background-color: #fff; border: 1px solid #D1D1D1; border-radius: 4px; box-shadow: none; box-sizing: border-box; } textarea { -webkit-appearance: none; -moz-appearance: none; appearance: none; } textarea { min-height: 65px; padding-top: 6px; padding-bottom: 6px; } textarea:focus { border: 1px solid #33C3F0; outline: 0; }</style><title>QuoteTicker</title><link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css\" integrity=\"sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO\" crossorigin=\"anonymous\"><script src=\"https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js\" integrity=\"sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy\" crossorigin=\"anonymous\"></script></head><body><h1>Add meg az id&eacute;zetet</h1><form action=\"/\" method=\"POST\"><textarea class=\"u-full-width\" id=\"exampleMessage\" name=\"message\" rows=6>"};
@@ -49,6 +53,10 @@ void handle404();
 void printMessage();
 
 void setup() {
+
+  EEPROM.get(EEPROM_ADDR, curMessage);
+  messages = String(curMessage);
+
   messagesOneline = messages;
   messagesOneline.replace("\r\n", "   ");
   Serial.begin(9600);
@@ -103,6 +111,7 @@ void handlePost() {
   messagesOneline.replace("\r\n", "   ");
   
   messagesOneline.toCharArray(curMessage, BUF_SIZE);
+  EEPROM.put(EEPROM_ADDR, curMessage);
   Serial.println(messages);
   
   // save messages
